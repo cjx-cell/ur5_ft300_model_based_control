@@ -17,7 +17,7 @@
 ```bash
 conda activate ur3-control
 
-python experiments/ur3_ft300_mujoco/ur3_ft300_robotiq_mujoco/view_model.py
+python experiments/archive/ur3_ft300_learning/ur3_ft300_robotiq_mujoco/view_model.py
 ```
 
 也可以直接在自己的 Python 程序中加载：
@@ -27,7 +27,7 @@ from pathlib import Path
 import mujoco
 
 model_path = Path(
-    "experiments/ur3_ft300_mujoco/"
+    "experiments/archive/ur3_ft300_learning/"
     "ur3_ft300_robotiq_mujoco/"
     "ur3_ft300_robotiq.xml"
 ).resolve()
@@ -141,7 +141,7 @@ global_camera_id = mujoco.mj_name2id(
 ```bash
 conda activate ur3-control
 
-python experiments/ur3_ft300_mujoco/ur3_ft300_robotiq_mujoco/convert_model.py
+python experiments/archive/ur3_ft300_learning/ur3_ft300_robotiq_mujoco/convert_model.py
 ```
 
 转换脚本会重新生成：

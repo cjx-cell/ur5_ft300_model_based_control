@@ -1,248 +1,198 @@
-# UR3 + FT300 Model-Based Control & Contact Manipulation
+# UR5/UR3 + FT300 基于模型的曲面扫描与力控制
 
-Model-based motion and force control experiments for a **UR3 manipulator + FT300 force/torque sensor + Robotiq gripper**, built with **Pinocchio**, **MuJoCo**, and **TSID/HQP**.
+本项目使用 **MuJoCo + Pinocchio** 实现机械臂动力学控制、FT300 六维力传感处理、未知曲面学习、5 N 恒力扫描和鲁棒性验证。
 
-This repository focuses on robot kinematics, rigid-body dynamics, computed-torque control, Cartesian impedance/admittance control, force sensing and compensation, hybrid position/force control, surface-contact manipulation, robustness evaluation, and task-space inverse dynamics.
+当前推荐主线是 UR5 对未知曲面的两遍扫描：第一遍低力探索并学习表面，第二遍只使用学习结果完成约 1.54 m 的恒力扫描。
 
-## Project Scope
+![UR5学习曲面5N扫描](docs/media/ur5_learned_surface_5n_scan.gif)
 
-```text
-SE(3) geometry
-    ↓
-Forward kinematics
-    ↓
-Jacobian / wrench mapping
-    ↓
-Rigid-body dynamics
-    ↓
-Joint-space model-based control
-    ↓
-Cartesian pose control
-    ↓
-Impedance / admittance control
-    ↓
-FT300 force processing
-    ↓
-Hybrid position-force control
-    ↓
-Surface scanning and force-controlled replay
-    ↓
-Robustness evaluation
-    ↓
-TSID / HQP multi-task and contact-force optimization
-```
+[下载 MP4 演示](docs/media/ur5_learned_surface_5n_scan.mp4)
 
-The main objective is not only to implement controllers, but also to verify model consistency, isolate simulation/modeling errors, and evaluate contact-control robustness under controlled perturbations.
-
-## Repository Structure
+## 项目结构
 
 ```text
 ur3_ft300_model_based_control/
 ├── README.md
 ├── environment.yml
-├── .gitignore
-├── examples/
-│   ├── geometry/
-│   ├── forward_kinematics/
-│   ├── jacobian/
-│   ├── wrench_mapping/
-│   ├── dynamics/
-│   └── model_based_control/
-├── experiments/
-│   └── ur3_ft300_mujoco/
-└── docs/
+├── docs/
+│   └── media/
+│       ├── ur5_learned_surface_5n_scan.gif
+│       └── ur5_learned_surface_5n_scan.mp4
+├── examples/                         # 几何、运动学、动力学基础示例
+└── experiments/
+    ├── ur5_surface_scanning/         # 当前UR5曲面扫描主线
+    │   ├── 89_* ... 98_*
+    │   ├── ur5_ft300_inspection*
+    │   └── results/robustness/
+    └── archive/
+        └── ur3_ft300_learning/       # 00–83、74/75及UR3历史模型
 ```
 
-## Core Components
+- [UR5 曲面扫描使用说明](experiments/ur5_surface_scanning/README.md)
+- [UR3 早期学习实验归档说明](experiments/archive/ur3_ft300_learning/README.md)
 
-### Kinematics and Dynamics
-
-The examples cover SO(3)/SE(3) transforms, forward kinematics, frame Jacobians, wrench-to-joint-torque mapping, gravity compensation, mass-matrix computation, nonlinear effects, and RNEA/CRBA/ABA.
-
-The rigid-body dynamics are
-
-\[
-M(q)\ddot q + h(q,\dot q) = \tau .
-\]
-
-### Model-Based Motion Control
-
-Implemented controllers include joint PD, PD + gravity compensation, computed-torque control, 3D Cartesian position control, 6D Cartesian pose control, and 3D/6D Cartesian impedance control.
-
-The Cartesian acceleration relationship is
-
-\[
-\ddot x = J(q)\ddot q + \dot J(q,\dot q)\dot q .
-\]
-
-### FT300 Force/Torque Processing
-
-The force-sensing pipeline includes raw wrench reading, zeroing, payload-gravity compensation, filtering, sensor/world frame transforms, and projection onto task or surface directions.
-
-### Admittance and Hybrid Position/Force Control
-
-Implemented experiments include 1D/6D admittance, hybrid position-force control, surface-normal force tracking, and curved-surface TCP pose + force tracking.
-
-A representative admittance relation is
-
-\[
-M_f\ddot d_n + D_f\dot d_n = F_d - F_n .
-\]
-
-## Surface Contact and Path Learning
-
-The contact-manipulation workflow is:
+## UR5 未知曲面主流程
 
 ```text
-Low-force scan
-    ↓
-Record actual TCP trajectory
-    ↓
-Arc-length resampling
-    ↓
-Local polynomial fitting
-    ↓
-Estimate tangent and surface normal
-    ↓
-Learn nominal path
-    ↓
-Force-controlled replay
+已知扫描区域的XY光栅布局
+          ↓
+97A：低力探索，采集实际TCP与FT300数据
+          ↓
+97B：拟合实际位置并估计表面法向
+          ↓
+97C：验证961个学习位姿全部可达、连续且无碰撞
+          ↓
+97D：仅使用97B学习曲面进行1.538 m、5 N扫描
+          ↓
+97E：工件偏移、倾斜和摩擦鲁棒性验证
 ```
 
-Representative path-learning results:
+97B 之后不使用解析真实曲面生成期望位置或法向。MuJoCo 中的解析椭球只是隐藏环境与碰撞几何。
 
-- Raw scan samples: 1500
-- Learned path points: 301
-- Learned path length: 30.66 mm
-- Scan-force mean error: 0.022 N
-- Path mean / max error: 0.008 / 0.023 mm
-- Surface-normal mean / max error: 0.10 / 0.96 deg
+## 97D 控制器
 
-Representative force-controlled replay results:
+97D 不是简单关节轨迹回放，而是“学习模型前馈 + 在线力/力矩反馈”：
 
-- Normal-force mean / max error: **0.027 / 0.182 N**
-- TCP mean / max error: **0.108 / 0.560 mm**
-- Tool-to-learned-normal mean / max error: **0.057 / 0.245 deg**
-
-## Robustness Evaluation
-
-| Perturbation | Main observation |
+| 信号 | 控制作用 |
 |---|---|
-| Workpiece normal offset +1.5 mm | Force controller compensated the offset |
-| Friction coefficient 0.05 → 0.30 | Normal force remained stable; TCP / pose accuracy degraded |
-| Tool radius 5.0 → 4.5 mm | Force correction compensated the geometric change |
-| 0.15 mm scan-position noise | Direct differentiation failed; local quadratic fitting recovered usable normals |
+| 97B 学习位置 | 名义 TCP 位置 |
+| 97B 学习法向/姿态 | 名义工具姿态 |
+| FT300 法向力误差 | 法向压入位移导纳 |
+| FT300 TCP 残余 X/Y 力矩 | Roll/Pitch 姿态导纳 |
+| FT300 完整六维 wrench | 外力广义力补偿 |
+| Pinocchio RNEA | 逆动力学前馈 |
 
-The noisy-scan experiment demonstrates that numerical differentiation can amplify measurement noise; local regression was therefore used before tangent/normal estimation.
-
-## Dynamics Debugging: MuJoCo Passive Forces
-
-Free-space isolation tests identified a missing MuJoCo passive generalized-force term. The corrected actuator command is
+法向导纳为：
 
 \[
-\tau_{act} = \tau_{target} - q_{passive}.
+M_f\ddot d_n+D_f\dot d_n=F_d-F_n.
 \]
 
-The debugging workflow was:
-
-```text
-Observed tracking error
-    ↓
-Form hypothesis
-    ↓
-Single-variable experiment
-    ↓
-Isolate free-space subsystem
-    ↓
-Identify missing dynamics term
-    ↓
-Re-close loop and verify
-```
-
-## TSID / HQP Experiments
-
-Implemented experiments:
-
-- `80_ur3_tsid_posture_control.py` — joint-posture task
-- `81_ur3_tsid_se3_control_fixed.py` — 6D SE(3) task
-- `82_ur3_tsid_multitask_bounds_fixed.py` — Cartesian task + posture regularization + joint-velocity bounds
-- `83_ur3_tsid_contact_force.py` — point contact + contact-force optimization + friction constraints
-
-For the contact experiment:
-
-```text
-nVar = 15
-nEq  = 3
-nIn  = 5
-```
-
-Representative result:
-
-- Desired normal force: 5.000 N
-- Optimized normal force: 4.950495 N
-- Max contact-point position error: 0.000000 mm
-- Max contact-dynamics residual: 1.776e-15
-
-The verified contact dynamics are
+姿态导纳为：
 
 \[
-M(q)\ddot q + h(q,\dot q) = \tau + J_c^T f_c .
+I_r\ddot\theta+D_r\dot\theta+K_r\theta=-M_{TCP,xy}.
 \]
 
-## Recommended Experiments
+FT300 力矩在进入姿态控制前先换算到探针 TCP：
+
+\[
+M_{TCP}=M_{FT300}-r_{FT300\rightarrow TCP}\times F.
+\]
+
+这可以排除探针力臂和扫描摩擦产生的搬运力矩。绕工具 Z 轴的力矩不用于调姿，以免摩擦驱动工具偏航。
+
+## 已验证结果
+
+### 97C 学习曲面全路径可达性
+
+| 指标 | 结果 |
+|---|---:|
+| IK 成功 | 961 / 961 |
+| 最大位置残差 | 0.0142 mm |
+| 最大姿态残差 | 0.0041° |
+| 最小雅可比奇异值 | 0.139974 |
+| 最大条件数 | 13.41 |
+| 关节限位违规 | 0 |
+| 非预期碰撞 | 0 |
+
+### 97D 5 N 完整扫描
+
+| 指标 | 结果 |
+|---|---:|
+| 路径长度 | 1538.2 mm |
+| 实际扫描时间 | 40.286 s |
+| 法向力平均 / 最大误差 | 0.322 / 2.940 N |
+| TCP 平均 / 最大误差 | 0.191 / 1.081 mm |
+| 修正姿态最大跟踪误差 | 0.359° |
+| 最大执行器力矩 | 39.867 Nm |
+| 力矩饱和 | 0% |
+| 非预期碰撞 | 0 |
+| 结果 | PASS |
+
+## 97E 鲁棒性验证
+
+97E 沿用早期 75 系列的受控变量方法：控制器和 97B 学习轨迹保持不变，只改变控制器未知的工件或接触环境。
+
+| 场景 | 结果 | 力平均/最大误差 | TCP最大误差 | 法向修正范围 |
+|---|---|---:|---:|---:|
+| 基准 | PASS | 0.322 / 2.940 N | 1.081 mm | -0.001～+0.767 mm |
+| 工件 Z +1 mm | PASS | 0.315 / 2.656 N | 1.085 mm | -1.003～-0.119 mm |
+| 工件 Z -1 mm | PASS | 0.315 / 2.890 N | 1.108 mm | +0.997～+1.656 mm |
+| 工件 X +1 mm | PASS | 0.321 / 2.893 N | 1.120 mm | -0.158～+0.996 mm |
+| 工件绕 Y +1° | PASS | 0.314 / 2.973 N | 1.073 mm | -1.419～+2.131 mm |
+| 低摩擦 μ=0.15 | PASS | 0.322 / 2.940 N | 1.081 mm | -0.001～+0.767 mm |
+| 高摩擦 μ=0.60 | FAIL | 0.527 / 7.076 N | 1.476 mm | -0.001～+0.805 mm |
+
+高摩擦场景没有发生碰撞或力矩饱和，但换行瞬态超过当前力误差阈值。这是已记录的控制边界，不会被结果汇总隐藏。
+
+完整结果位于：
 
 ```text
-experiments/ur3_ft300_mujoco/
-
-12_ur3_computed_torque_5dof.py
-21_ur3_cartesian_pose_computed_torque.py
-31_ur3_cartesian_impedance_6d.py
-61_ur3_admittance_6d.py
-72_ur3_curved_surface_tcp_passive_comp.py
-74_ur3_contact_path_learning.py
-74_ur3_force_controlled_replay.py
-75_ur3_workpiece_offset_robustness.py
-75_ur3_friction_robustness.py
-75_ur3_tool_radius_robustness.py
-75_ur3_scan_noise_robustness_v2.py
-80_ur3_tsid_posture_control.py
-81_ur3_tsid_se3_control_fixed.py
-82_ur3_tsid_multitask_bounds_fixed.py
-83_ur3_tsid_contact_force.py
+experiments/ur5_surface_scanning/results/robustness/
+├── 97E_robustness_summary.csv
+└── 97E_robustness_summary.npz
 ```
 
-Other scripts are retained to document intermediate hypotheses, failed approaches, and debugging experiments.
+## 快速运行
 
-## Environment
+```bash
+cd ~/ur3_ft300_model_based_control/experiments/ur5_surface_scanning
+conda activate robot310
 
-Tested core environment:
+# 学习曲面全路径可达性
+env -u PYTHONPATH python 97C_check_learned_surface_reachability.py
+
+# 5 N完整扫描
+env -u PYTHONPATH python 97D_ur5_learned_surface_5n_scan.py
+
+# 七个完整鲁棒性场景
+env -u PYTHONPATH python 97E_ur5_learned_surface_robustness.py
+
+# 从97D结果重新生成README媒体
+MUJOCO_GL=egl env -u PYTHONPATH python 98_generate_ur5_scan_demo.py
+```
+
+关闭 MuJoCo Viewer 即可退出交互式扫描程序。97E 使用无界面仿真，并自动在完成后退出。
+
+## 74/75 与 97A–97E 的关系
+
+| UR3 早期流程 | UR5 当前流程 |
+|---|---|
+| 74A 低力扫描学习 | 97A 三维光栅低力探索 |
+| 74B 学习路径 5 N 回放 | 97D 学习曲面 5 N 完整扫描 |
+| 75 工件/摩擦/工具/噪声鲁棒性 | 97E 工件位姿与摩擦鲁棒性 |
+| 约 30.7 mm 路径 | 约 1538.2 mm、961 位姿 |
+| 平面内法向估计 | 完整三维曲面重建与 6D 姿态 |
+
+旧实验保留在 `experiments/archive/ur3_ft300_learning/`，用于复现控制器的演进过程。
+
+## 基础示例与 TSID
+
+`examples/` 包含 SO(3)/SE(3)、正运动学、雅可比、wrench 映射、RNEA/CRBA/ABA 和计算力矩控制示例。
+
+UR3 归档目录还保留：
+
+- 关节 PD 与重力补偿
+- 笛卡尔阻抗/导纳
+- FT300 去零、重力补偿和滤波
+- 曲面混合位置/力控制
+- TSID/HQP 姿态、SE(3)、约束和接触力实验
+
+## 环境
+
+当前完整 UR5 流程已在以下环境验证：
 
 - Ubuntu 22.04
 - Python 3.10
-- Pinocchio 4.0.0
-- TSID 1.10.0
 - MuJoCo 3.13.0
+- Pinocchio 4.0.0
 - NumPy
 
-Create the environment with:
+可使用仓库中的 `environment.yml` 创建环境；如果终端已加载 ROS 2 的 Python 路径，运行独立 MuJoCo/Pinocchio 程序时使用 `env -u PYTHONPATH`。
 
-```bash
-conda env create -f environment.yml
-conda activate ur3-control
-```
+## 注意事项
 
-If ROS 2 environment variables are already loaded in the shell, launch standalone TSID/MuJoCo experiments with:
-
-```bash
-env -u PYTHONPATH python experiments/ur3_ft300_mujoco/83_ur3_tsid_contact_force.py
-```
-
-## Notes
-
-- This repository is a simulation and algorithm-validation project.
-- TSID contact forces are model-side optimized contact forces, not direct FT300 measurements.
-- Simulation gains should not be copied directly to real hardware without safety limits, actuator constraints, frequency validation, and contact testing.
-
-## Related Project
-
-The separate repository **`ur3_ft300_ws`** focuses on ROS 2 / Gazebo system integration, multimodal sensing, data collection, and learned manipulation policies. This repository focuses on model-based robot dynamics, force control, MuJoCo, and TSID/HQP.
+- 本仓库用于仿真与算法验证。
+- 仿真增益不能直接用于真实 UR5。
+- 上真实机械臂前必须重新验证关节力矩、速度、碰撞、急停、FT300 量程、控制周期和接触稳定性。

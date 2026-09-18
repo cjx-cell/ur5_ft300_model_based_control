@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="ur3_ft300_inspection">
+  <!-- Dedicated UR3 + FT300 inspection model. Tool +Z points from the FT300 toward the inspection tip. -->
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.001" integrator="implicitfast" gravity="0 0 -9.81" />
+  <asset>
+    <mesh name="base" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/base.stl" />
+    <mesh name="shoulder" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/shoulder.stl" />
+    <mesh name="upperarm" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/upperarm.stl" />
+    <mesh name="forearm" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/forearm.stl" />
+    <mesh name="wrist1" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist1.stl" />
+    <mesh name="wrist2" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist2.stl" />
+    <mesh name="wrist3" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist3.stl" />
+    <mesh name="robotiq_ft300" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/install/robotiq_ft_sensor_description/share/robotiq_ft_sensor_description/meshes/collision/robotiq_ft300.STL" />
+    <mesh name="robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/install/robotiq_ft_sensor_description/share/robotiq_ft_sensor_description/meshes/collision/mountings/robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119.STL" />
+    <material name="ur_base_gray" rgba="0.2688 0.2688 0.2688 1" specular="0.25" shininess="0.35" />
+    <material name="ur_shoulder_blue" rgba="0.200704 0.278016 0.32768 1" specular="0.25" shininess="0.35" />
+    <material name="ur_blue" rgba="0.25088 0.34752 0.4096 1" specular="0.3" shininess="0.4" />
+    <material name="ur_metal_gray" rgba="0.335872 0.335872 0.335872 1" specular="0.35" shininess="0.45" />
+    <material name="inspection_probe_metal" rgba="0.70 0.72 0.75 1" specular="0.55" shininess="0.65" />
+    <material name="inspection_tip_dark" rgba="0.10 0.12 0.14 1" specular="0.35" shininess="0.45" />
+  </asset>
+  <worldbody>
+    <body name="base_link" pos="0 0 0.76">
+      <body name="base_link_inertia" quat="0 0 0 1">
+        <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="2" diaginertia="0.005625 0.00305317 0.00305317" />
+        <geom quat="0 0 0 1" type="mesh" mesh="base" friction="0.8 0.01 0.001" material="ur_base_gray" />
+        <body name="shoulder_link" pos="0 0 0.1519">
+          <inertial pos="0 0 -0.02" mass="2" diaginertia="0.00809317 0.00809317 0.005625" />
+          <joint name="shoulder_pan_joint" range="-6.28319 6.28319" actuatorfrcrange="-56 56" damping="0.15" armature="0.01" />
+          <geom quat="0 0 0 1" type="mesh" mesh="shoulder" friction="0.8 0.01 0.001" material="ur_shoulder_blue" />
+          <body name="upper_arm_link" quat="0.707107 0.707107 0 0">
+            <inertial pos="-0.11365 0 0.1157" mass="3.42" diaginertia="0.0217285 0.0217285 0.00961875" />
+            <joint name="shoulder_lift_joint" range="-6.28319 6.28319" actuatorfrcrange="-56 56" damping="0.15" armature="0.01" />
+            <geom pos="0 0 0.1198" quat="0.5 0.5 -0.5 -0.5" type="mesh" mesh="upperarm" friction="0.8 0.01 0.001" material="ur_blue" />
+            <body name="forearm_link" pos="-0.24365 0 0">
+              <inertial pos="-0.16325 0 0.0238" mass="1.26" diaginertia="0.00654681 0.00654681 0.00354375" />
+              <joint name="elbow_joint" range="-3.14159 3.14159" actuatorfrcrange="-28 28" damping="0.15" armature="0.01" />
+              <geom pos="0 0 0.0275" quat="0.5 0.5 -0.5 -0.5" type="mesh" mesh="forearm" friction="0.8 0.01 0.001" material="ur_blue" />
+              <body name="wrist_1_link" pos="-0.21325 0 0.11235">
+                <inertial pos="0 -0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00161064 0.00161064" />
+                <joint name="wrist_1_joint" range="-6.28319 6.28319" actuatorfrcrange="-12 12" damping="0.08" armature="0.001" />
+                <geom pos="0 0 -0.085" quat="0.707107 0.707107 0 0" type="mesh" mesh="wrist1" friction="0.8 0.01 0.001" material="ur_blue" />
+                <body name="wrist_2_link" pos="0 -0.08535 -1.75056e-11" quat="0.707107 0.707107 0 0">
+                  <inertial pos="0 0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00157217 0.00157217" />
+                  <joint name="wrist_2_joint" range="-6.28319 6.28319" actuatorfrcrange="-12 12" damping="0.08" armature="0.001" />
+                  <geom pos="0 0 -0.083" quat="1 0 0 0" type="mesh" mesh="wrist2" friction="0.8 0.01 0.001" material="ur_blue" />
+                  <body name="wrist_3_link" pos="0 0.0819 -1.6798e-11" quat="0.707107 -0.707107 0 0">
+                    <inertial pos="0 0 -0.02" quat="0.5 0.5 -0.5 0.5" mass="0.35" diaginertia="0.0001792 0.000136267 0.000136267" />
+                    <joint name="wrist_3_joint" actuatorfrcrange="-12 12" damping="0.08" armature="0.001" />
+                    <geom pos="0 -0.002 -0.082" quat="0.707107 0.707107 0 0" type="mesh" mesh="wrist3" friction="0.8 0.01 0.001" material="ur_metal_gray" />
+                    <body name="ft_frame" quat="0 1 0 0" />
+                    <body name="flange" quat="0.5 -0.5 -0.5 -0.5">
+                      <body name="tool0" quat="0.5 0.5 0.5 0.5">
+                        <body name="ft300_mounting_plate">
+                          <geom type="mesh" rgba="0.12 0.12 0.12 1" mesh="robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119" friction="0.8 0.01 0.001" />
+                          <body name="ft300_sensor" pos="0 0 0.0415" quat="0 0 1 0">
+                            <inertial pos="0 0 -0.017" quat="0.709662 -0.000475378 -0.0158879 0.704363" mass="0.3" diaginertia="0.000265022 0.000262023 0.000218955" />
+                            <geom type="mesh" rgba="0.12 0.12 0.12 1" mesh="robotiq_ft300" friction="0.8 0.01 0.001" />
+                            <body name="robotiq_ft_frame_id" quat="0 0.707107 0.707107 0">
+                              <site name="ft300_site" pos="0 0 0" size="0.006" rgba="1 0.2 0.1 0.8" />
+                              <body name="inspection_probe">
+                                <inertial pos="0 0 0.067083333333333342" mass="0.12" diaginertia="0.0001659125 0.0001659125 9.9999999999999995e-07" />
+                                <geom name="inspection_probe_shaft" type="cylinder" size="0.0040000000000000001 0.057499999999999996" pos="0 0 0.057499999999999996" material="inspection_probe_metal" contype="0" conaffinity="0" />
+                                <geom name="inspection_probe_tip_collision" type="sphere" size="0.0050000000000000001" pos="0 0 0.11499999999999999" material="inspection_tip_dark" friction="0.45 0.01 0.001" solref="-2500 -35" />
+                                <body name="inspection_tip" pos="0 0 0.12">
+                                  <site name="inspection_tip_site" pos="0 0 0" size="0.0035" rgba="1 0.15 0.05 0.9" />
+                                </body>
+                              </body>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="base" quat="0 0 0 1" />
+    </body>
+  </worldbody>
+  <visual>
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.7 0.7 0.7" />
+    <rgba haze="0.15 0.25 0.35 1" />
+  </visual>
+  <contact>
+    <exclude body1="base_link_inertia" body2="shoulder_link" />
+  </contact>
+  <actuator>
+    <motor name="shoulder_pan_motor" joint="shoulder_pan_joint" gear="1" ctrllimited="true" ctrlrange="-56 56" />
+    <motor name="shoulder_lift_motor" joint="shoulder_lift_joint" gear="1" ctrllimited="true" ctrlrange="-56 56" />
+    <motor name="elbow_motor" joint="elbow_joint" gear="1" ctrllimited="true" ctrlrange="-28 28" />
+    <motor name="wrist1_motor" joint="wrist_1_joint" gear="1" ctrllimited="true" ctrlrange="-12 12" />
+    <motor name="wrist2_motor" joint="wrist_2_joint" gear="1" ctrllimited="true" ctrlrange="-12 12" />
+    <motor name="wrist3_motor" joint="wrist_3_joint" gear="1" ctrllimited="true" ctrlrange="-12 12" />
+  </actuator>
+  <sensor>
+    <force name="ft300_force" site="ft300_site" />
+    <torque name="ft300_torque" site="ft300_site" />
+  </sensor>
+  <keyframe>
+    <key name="home" qpos="-1.254 -1.5707 1.5707 -1.5707 -1.5707 0" ctrl="0 0 0 0 0 0" />
+  </keyframe>
+</mujoco>

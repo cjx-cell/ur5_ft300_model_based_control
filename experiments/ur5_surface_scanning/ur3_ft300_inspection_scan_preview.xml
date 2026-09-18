@@ -1,0 +1,352 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="ur3_ft300_inspection_scan_preview">
+  <!-- Green path: raster scan. Blue markers: outward surface normals. -->
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.001" integrator="implicitfast" gravity="0 0 -9.81" />
+  <asset>
+    <mesh name="base" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/base.stl" />
+    <mesh name="shoulder" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/shoulder.stl" />
+    <mesh name="upperarm" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/upperarm.stl" />
+    <mesh name="forearm" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/forearm.stl" />
+    <mesh name="wrist1" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist1.stl" />
+    <mesh name="wrist2" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist2.stl" />
+    <mesh name="wrist3" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist3.stl" />
+    <mesh name="robotiq_ft300" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/install/robotiq_ft_sensor_description/share/robotiq_ft_sensor_description/meshes/collision/robotiq_ft300.STL" />
+    <mesh name="robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/install/robotiq_ft_sensor_description/share/robotiq_ft_sensor_description/meshes/collision/mountings/robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119.STL" />
+    <material name="ur_base_gray" rgba="0.2688 0.2688 0.2688 1" specular="0.25" shininess="0.35" />
+    <material name="ur_shoulder_blue" rgba="0.200704 0.278016 0.32768 1" specular="0.25" shininess="0.35" />
+    <material name="ur_blue" rgba="0.25088 0.34752 0.4096 1" specular="0.3" shininess="0.4" />
+    <material name="ur_metal_gray" rgba="0.335872 0.335872 0.335872 1" specular="0.35" shininess="0.45" />
+    <material name="inspection_probe_metal" rgba="0.70 0.72 0.75 1" specular="0.55" shininess="0.65" />
+    <material name="inspection_tip_dark" rgba="0.10 0.12 0.14 1" specular="0.35" shininess="0.45" />
+    <texture name="workcell_skybox" type="skybox" builtin="gradient" rgb1="0.92 0.95 1.00" rgb2="0.45 0.56 0.72" width="512" height="3072" />
+    <material name="floor_mat" rgba="0.58 0.61 0.65 1" specular="0.10" shininess="0.15" />
+    <material name="table_mat" rgba="0.22 0.25 0.29 1" specular="0.35" shininess="0.45" />
+    <material name="fixture_mat" rgba="0.12 0.19 0.27 1" specular="0.45" shininess="0.55" />
+    <material name="workpiece_mat" rgba="0.72 0.47 0.18 1" specular="0.45" shininess="0.50" />
+    <material name="clamp_mat" rgba="0.09 0.11 0.14 1" specular="0.25" shininess="0.30" />
+  </asset>
+  <worldbody>
+    <body name="base_link" pos="0 0 0.76">
+      <body name="base_link_inertia" quat="0 0 0 1">
+        <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="2" diaginertia="0.005625 0.00305317 0.00305317" />
+        <geom quat="0 0 0 1" type="mesh" mesh="base" friction="0.8 0.01 0.001" material="ur_base_gray" />
+        <body name="shoulder_link" pos="0 0 0.1519">
+          <inertial pos="0 0 -0.02" mass="2" diaginertia="0.00809317 0.00809317 0.005625" />
+          <joint name="shoulder_pan_joint" range="-6.28319 6.28319" actuatorfrcrange="-56 56" damping="0.15" armature="0.01" />
+          <geom quat="0 0 0 1" type="mesh" mesh="shoulder" friction="0.8 0.01 0.001" material="ur_shoulder_blue" />
+          <body name="upper_arm_link" quat="0.707107 0.707107 0 0">
+            <inertial pos="-0.11365 0 0.1157" mass="3.42" diaginertia="0.0217285 0.0217285 0.00961875" />
+            <joint name="shoulder_lift_joint" range="-6.28319 6.28319" actuatorfrcrange="-56 56" damping="0.15" armature="0.01" />
+            <geom pos="0 0 0.1198" quat="0.5 0.5 -0.5 -0.5" type="mesh" mesh="upperarm" friction="0.8 0.01 0.001" material="ur_blue" />
+            <body name="forearm_link" pos="-0.24365 0 0">
+              <inertial pos="-0.16325 0 0.0238" mass="1.26" diaginertia="0.00654681 0.00654681 0.00354375" />
+              <joint name="elbow_joint" range="-3.14159 3.14159" actuatorfrcrange="-28 28" damping="0.15" armature="0.01" />
+              <geom pos="0 0 0.0275" quat="0.5 0.5 -0.5 -0.5" type="mesh" mesh="forearm" friction="0.8 0.01 0.001" material="ur_blue" />
+              <body name="wrist_1_link" pos="-0.21325 0 0.11235">
+                <inertial pos="0 -0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00161064 0.00161064" />
+                <joint name="wrist_1_joint" range="-6.28319 6.28319" actuatorfrcrange="-12 12" damping="0.08" armature="0.001" />
+                <geom pos="0 0 -0.085" quat="0.707107 0.707107 0 0" type="mesh" mesh="wrist1" friction="0.8 0.01 0.001" material="ur_blue" />
+                <body name="wrist_2_link" pos="0 -0.08535 -1.75056e-11" quat="0.707107 0.707107 0 0">
+                  <inertial pos="0 0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00157217 0.00157217" />
+                  <joint name="wrist_2_joint" range="-6.28319 6.28319" actuatorfrcrange="-12 12" damping="0.08" armature="0.001" />
+                  <geom pos="0 0 -0.083" quat="1 0 0 0" type="mesh" mesh="wrist2" friction="0.8 0.01 0.001" material="ur_blue" />
+                  <body name="wrist_3_link" pos="0 0.0819 -1.6798e-11" quat="0.707107 -0.707107 0 0">
+                    <inertial pos="0 0 -0.02" quat="0.5 0.5 -0.5 0.5" mass="0.35" diaginertia="0.0001792 0.000136267 0.000136267" />
+                    <joint name="wrist_3_joint" actuatorfrcrange="-12 12" damping="0.08" armature="0.001" />
+                    <geom pos="0 -0.002 -0.082" quat="0.707107 0.707107 0 0" type="mesh" mesh="wrist3" friction="0.8 0.01 0.001" material="ur_metal_gray" />
+                    <body name="ft_frame" quat="0 1 0 0" />
+                    <body name="flange" quat="0.5 -0.5 -0.5 -0.5">
+                      <body name="tool0" quat="0.5 0.5 0.5 0.5">
+                        <body name="ft300_mounting_plate">
+                          <geom type="mesh" rgba="0.12 0.12 0.12 1" mesh="robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119" friction="0.8 0.01 0.001" />
+                          <body name="ft300_sensor" pos="0 0 0.0415" quat="0 0 1 0">
+                            <inertial pos="0 0 -0.017" quat="0.709662 -0.000475378 -0.0158879 0.704363" mass="0.3" diaginertia="0.000265022 0.000262023 0.000218955" />
+                            <geom type="mesh" rgba="0.12 0.12 0.12 1" mesh="robotiq_ft300" friction="0.8 0.01 0.001" />
+                            <body name="robotiq_ft_frame_id" quat="0 0.707107 0.707107 0">
+                              <site name="ft300_site" pos="0 0 0" size="0.006" rgba="1 0.2 0.1 0.8" />
+                              <body name="inspection_probe">
+                                <inertial pos="0 0 0.067083333333333342" mass="0.12" diaginertia="0.0001659125 0.0001659125 9.9999999999999995e-07" />
+                                <geom name="inspection_probe_shaft" type="cylinder" size="0.0040000000000000001 0.057499999999999996" pos="0 0 0.057499999999999996" material="inspection_probe_metal" contype="0" conaffinity="0" />
+                                <geom name="inspection_probe_tip_collision" type="sphere" size="0.0050000000000000001" pos="0 0 0.11499999999999999" material="inspection_tip_dark" friction="0.45 0.01 0.001" solref="-2500 -35" />
+                                <body name="inspection_tip" pos="0 0 0.12">
+                                  <site name="inspection_tip_site" pos="0 0 0" size="0.0035" rgba="1 0.15 0.05 0.9" />
+                                </body>
+                              </body>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="base" quat="0 0 0 1" />
+    </body>
+    <geom name="factory_floor" type="plane" size="3 3 0.1" pos="0 0 0" material="floor_mat" friction="0.9 0.01 0.001" />
+    <light name="key_light" pos="0.30 -0.30 2.40" dir="-0.10 0.05 -1" directional="true" diffuse="0.90 0.90 0.90" specular="0.25 0.25 0.25" />
+    <light name="fill_light" pos="-1.20 0.40 1.60" dir="0.60 -0.20 -0.70" directional="true" diffuse="0.45 0.48 0.55" specular="0.10 0.10 0.12" />
+    <body name="inspection_workbench">
+      <geom name="table_top" type="box" pos="0.050000 -0.250000 0.650000" size="0.550000 0.500000 0.030000" material="table_mat" friction="0.9 0.01 0.001" />
+      <geom name="table_leg_1" type="box" pos="0.530000 0.180000 0.310000" size="0.035000 0.035000 0.310000" material="table_mat" friction="0.9 0.01 0.001" />
+      <geom name="table_leg_2" type="box" pos="0.530000 -0.680000 0.310000" size="0.035000 0.035000 0.310000" material="table_mat" friction="0.9 0.01 0.001" />
+      <geom name="table_leg_3" type="box" pos="-0.430000 0.180000 0.310000" size="0.035000 0.035000 0.310000" material="table_mat" friction="0.9 0.01 0.001" />
+      <geom name="table_leg_4" type="box" pos="-0.430000 -0.680000 0.310000" size="0.035000 0.035000 0.310000" material="table_mat" friction="0.9 0.01 0.001" />
+      <geom name="fixture_base" type="box" pos="0.200000 -0.250000 0.695000" size="0.190000 0.150000 0.015000" material="fixture_mat" friction="0.8 0.01 0.001" />
+      <geom name="fixture_clamp_left" type="box" pos="0.015000 -0.250000 0.725000" size="0.018 0.135 0.030" material="clamp_mat" friction="0.8 0.01 0.001" />
+      <geom name="fixture_clamp_right" type="box" pos="0.385000 -0.250000 0.725000" size="0.018 0.135 0.030" material="clamp_mat" friction="0.8 0.01 0.001" />
+      <geom name="inspection_workpiece" type="ellipsoid" pos="0.200000 -0.250000 0.765000" size="0.160000 0.120000 0.055000" material="workpiece_mat" friction="0.30 0.01 0.001" solref="-2500 -35" />
+      <site name="scan_corner_1" type="sphere" pos="0.100000 -0.310000 0.800971" size="0.003" rgba="0.10 0.85 0.25 0.95" />
+      <site name="scan_corner_2" type="sphere" pos="0.100000 -0.190000 0.800971" size="0.003" rgba="0.10 0.85 0.25 0.95" />
+      <site name="scan_corner_3" type="sphere" pos="0.300000 -0.310000 0.800971" size="0.003" rgba="0.10 0.85 0.25 0.95" />
+      <site name="scan_corner_4" type="sphere" pos="0.300000 -0.190000 0.800971" size="0.003" rgba="0.10 0.85 0.25 0.95" />
+    </body>
+    <body name="scan_path_preview">
+      <geom name="scan_path_segment_0000" type="capsule" fromto="0.09952384 -0.31050791 0.79929999 0.10792092 -0.31047990 0.80207895" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0001" type="capsule" fromto="0.10792092 -0.31047990 0.80207895 0.11630885 -0.31045801 0.80443760" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0002" type="capsule" fromto="0.11630885 -0.31045801 0.80443760 0.12469022 -0.31044058 0.80645091" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0003" type="capsule" fromto="0.12469022 -0.31044058 0.80645091 0.13306673 -0.31042656 0.80816930" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0004" type="capsule" fromto="0.13306673 -0.31042656 0.80816930 0.14143958 -0.31041524 0.80962829" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0005" type="capsule" fromto="0.14143958 -0.31041524 0.80962829 0.14980963 -0.31040613 0.81085366" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0006" type="capsule" fromto="0.14980963 -0.31040613 0.81085366 0.15817752 -0.31039887 0.81186449" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0007" type="capsule" fromto="0.15817752 -0.31039887 0.81186449 0.16654379 -0.31039321 0.81267495" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0008" type="capsule" fromto="0.16654379 -0.31039321 0.81267495 0.17490883 -0.31038897 0.81329555" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0009" type="capsule" fromto="0.17490883 -0.31038897 0.81329555 0.18327302 -0.31038603 0.81373381" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0010" type="capsule" fromto="0.18327302 -0.31038603 0.81373381 0.19163664 -0.31038429 0.81399481" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0011" type="capsule" fromto="0.19163664 -0.31038429 0.81399481 0.20000000 -0.31038372 0.81408149" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0012" type="capsule" fromto="0.20000000 -0.31038372 0.81408149 0.20836336 -0.31038429 0.81399481" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0013" type="capsule" fromto="0.20836336 -0.31038429 0.81399481 0.21672698 -0.31038603 0.81373381" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0014" type="capsule" fromto="0.21672698 -0.31038603 0.81373381 0.22509117 -0.31038897 0.81329555" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0015" type="capsule" fromto="0.22509117 -0.31038897 0.81329555 0.23345621 -0.31039321 0.81267495" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0016" type="capsule" fromto="0.23345621 -0.31039321 0.81267495 0.24182248 -0.31039887 0.81186449" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0017" type="capsule" fromto="0.24182248 -0.31039887 0.81186449 0.25019037 -0.31040613 0.81085366" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0018" type="capsule" fromto="0.25019037 -0.31040613 0.81085366 0.25856042 -0.31041524 0.80962829" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0019" type="capsule" fromto="0.25856042 -0.31041524 0.80962829 0.26693327 -0.31042656 0.80816930" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0020" type="capsule" fromto="0.26693327 -0.31042656 0.80816930 0.27530978 -0.31044058 0.80645091" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0021" type="capsule" fromto="0.27530978 -0.31044058 0.80645091 0.28369115 -0.31045801 0.80443760" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0022" type="capsule" fromto="0.28369115 -0.31045801 0.80443760 0.29207908 -0.31047990 0.80207895" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0023" type="capsule" fromto="0.29207908 -0.31047990 0.80207895 0.30047616 -0.31050791 0.79929999" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0024" type="capsule" fromto="0.30047616 -0.31050791 0.79929999 0.30046057 -0.30545034 0.80110949" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0025" type="capsule" fromto="0.30046057 -0.30545034 0.80110949 0.30044759 -0.30039786 0.80268210" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0026" type="capsule" fromto="0.30044759 -0.30039786 0.80268210 0.30043675 -0.29534940 0.80404775" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0027" type="capsule" fromto="0.30043675 -0.29534940 0.80404775 0.30042769 -0.29030414 0.80522849" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0028" type="capsule" fromto="0.30042769 -0.29030414 0.80522849 0.29204100 -0.29029039 0.80760553" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0029" type="capsule" fromto="0.29204100 -0.29029039 0.80760553 0.28366069 -0.29027934 0.80966084" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0030" type="capsule" fromto="0.28366069 -0.29027934 0.80966084 0.27528515 -0.29027036 0.81143891" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0031" type="capsule" fromto="0.27528515 -0.29027036 0.81143891 0.26691325 -0.29026302 0.81297178" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0032" type="capsule" fromto="0.26691325 -0.29026302 0.81297178 0.25854417 -0.29025702 0.81428323" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0033" type="capsule" fromto="0.25854417 -0.29025702 0.81428323 0.25017728 -0.29025213 0.81539118" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0034" type="capsule" fromto="0.25017728 -0.29025213 0.81539118 0.24181210 -0.29024821 0.81630932" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0035" type="capsule" fromto="0.24181210 -0.29024821 0.81630932 0.23344824 -0.29024514 0.81704804" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0036" type="capsule" fromto="0.23344824 -0.29024514 0.81704804 0.22508537 -0.29024282 0.81761518" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0037" type="capsule" fromto="0.22508537 -0.29024282 0.81761518 0.21672320 -0.29024121 0.81801643" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0038" type="capsule" fromto="0.21672320 -0.29024121 0.81801643 0.20836149 -0.29024025 0.81825568" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0039" type="capsule" fromto="0.20836149 -0.29024025 0.81825568 0.20000000 -0.29023994 0.81833518" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0040" type="capsule" fromto="0.20000000 -0.29023994 0.81833518 0.19163851 -0.29024025 0.81825568" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0041" type="capsule" fromto="0.19163851 -0.29024025 0.81825568 0.18327680 -0.29024121 0.81801643" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0042" type="capsule" fromto="0.18327680 -0.29024121 0.81801643 0.17491463 -0.29024282 0.81761518" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0043" type="capsule" fromto="0.17491463 -0.29024282 0.81761518 0.16655176 -0.29024514 0.81704804" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0044" type="capsule" fromto="0.16655176 -0.29024514 0.81704804 0.15818790 -0.29024821 0.81630932" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0045" type="capsule" fromto="0.15818790 -0.29024821 0.81630932 0.14982272 -0.29025213 0.81539118" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0046" type="capsule" fromto="0.14982272 -0.29025213 0.81539118 0.14145583 -0.29025702 0.81428323" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0047" type="capsule" fromto="0.14145583 -0.29025702 0.81428323 0.13308675 -0.29026302 0.81297178" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0048" type="capsule" fromto="0.13308675 -0.29026302 0.81297178 0.12471485 -0.29027036 0.81143891" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0049" type="capsule" fromto="0.12471485 -0.29027036 0.81143891 0.11633931 -0.29027934 0.80966084" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0050" type="capsule" fromto="0.11633931 -0.29027934 0.80966084 0.10795900 -0.29029039 0.80760553" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0051" type="capsule" fromto="0.10795900 -0.29029039 0.80760553 0.09957231 -0.29030414 0.80522849" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0052" type="capsule" fromto="0.09957231 -0.29030414 0.80522849 0.09957985 -0.28526143 0.80624095" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0053" type="capsule" fromto="0.09957985 -0.28526143 0.80624095 0.09958608 -0.28022076 0.80709781" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0054" type="capsule" fromto="0.09958608 -0.28022076 0.80709781 0.09959113 -0.27518172 0.80780883" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0055" type="capsule" fromto="0.09959113 -0.27518172 0.80780883 0.09959514 -0.27014395 0.80838152" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0056" type="capsule" fromto="0.09959514 -0.27014395 0.80838152 0.10797734 -0.27013808 0.81058749" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0057" type="capsule" fromto="0.10797734 -0.27013808 0.81058749 0.11635423 -0.27013330 0.81250871" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0058" type="capsule" fromto="0.11635423 -0.27013330 0.81250871 0.12472708 -0.27012938 0.81417986" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0059" type="capsule" fromto="0.12472708 -0.27012938 0.81417986 0.13309679 -0.27012616 0.81562662" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0060" type="capsule" fromto="0.13309679 -0.27012616 0.81562662 0.14146405 -0.27012350 0.81686847" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0061" type="capsule" fromto="0.14146405 -0.27012350 0.81686847 0.14982939 -0.27012133 0.81792035" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0062" type="capsule" fromto="0.14982939 -0.27012133 0.81792035 0.15819321 -0.27011957 0.81879377" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0063" type="capsule" fromto="0.15819321 -0.27011957 0.81879377 0.16655586 -0.27011820 0.81949763" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0064" type="capsule" fromto="0.16655586 -0.27011820 0.81949763 0.17491762 -0.27011716 0.82003864" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0065" type="capsule" fromto="0.17491762 -0.27011716 0.82003864 0.18327876 -0.27011643 0.82042173" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0066" type="capsule" fromto="0.18327876 -0.27011643 0.82042173 0.19163948 -0.27011600 0.82065028" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0067" type="capsule" fromto="0.19163948 -0.27011600 0.82065028 0.20000000 -0.27011586 0.82072625" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0068" type="capsule" fromto="0.20000000 -0.27011586 0.82072625 0.20836052 -0.27011600 0.82065028" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0069" type="capsule" fromto="0.20836052 -0.27011600 0.82065028 0.21672124 -0.27011643 0.82042173" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0070" type="capsule" fromto="0.21672124 -0.27011643 0.82042173 0.22508238 -0.27011716 0.82003864" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0071" type="capsule" fromto="0.22508238 -0.27011716 0.82003864 0.23344414 -0.27011820 0.81949763" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0072" type="capsule" fromto="0.23344414 -0.27011820 0.81949763 0.24180679 -0.27011957 0.81879377" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0073" type="capsule" fromto="0.24180679 -0.27011957 0.81879377 0.25017061 -0.27012133 0.81792035" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0074" type="capsule" fromto="0.25017061 -0.27012133 0.81792035 0.25853595 -0.27012350 0.81686847" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0075" type="capsule" fromto="0.25853595 -0.27012350 0.81686847 0.26690321 -0.27012616 0.81562662" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0076" type="capsule" fromto="0.26690321 -0.27012616 0.81562662 0.27527292 -0.27012938 0.81417986" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0077" type="capsule" fromto="0.27527292 -0.27012938 0.81417986 0.28364577 -0.27013330 0.81250871" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0078" type="capsule" fromto="0.28364577 -0.27013330 0.81250871 0.29202266 -0.27013808 0.81058749" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0079" type="capsule" fromto="0.29202266 -0.27013808 0.81058749 0.30040486 -0.27014395 0.80838152" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0080" type="capsule" fromto="0.30040486 -0.27014395 0.80838152 0.30040183 -0.26510716 0.80882154" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0081" type="capsule" fromto="0.30040183 -0.26510716 0.80882154 0.30039971 -0.26007106 0.80913304" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0082" type="capsule" fromto="0.30039971 -0.26007106 0.80913304 0.30039845 -0.25503542 0.80931884" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0083" type="capsule" fromto="0.30039845 -0.25503542 0.80931884 0.30039803 -0.25000000 0.80938059" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0084" type="capsule" fromto="0.30039803 -0.25000000 0.80938059 0.29201712 -0.25000000 0.81153724" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0085" type="capsule" fromto="0.29201712 -0.25000000 0.81153724 0.28364123 -0.25000000 0.81341927" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0086" type="capsule" fromto="0.28364123 -0.25000000 0.81341927 0.27526918 -0.25000000 0.81505885" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0087" type="capsule" fromto="0.27526918 -0.25000000 0.81505885 0.26690012 -0.25000000 0.81647999" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0088" type="capsule" fromto="0.26690012 -0.25000000 0.81647999 0.25853341 -0.25000000 0.81770099" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0089" type="capsule" fromto="0.25853341 -0.25000000 0.81770099 0.25016855 -0.25000000 0.81873598" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0090" type="capsule" fromto="0.25016855 -0.25000000 0.81873598 0.24180515 -0.25000000 0.81959589" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0091" type="capsule" fromto="0.24180515 -0.25000000 0.81959589 0.23344287 -0.25000000 0.82028918" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0092" type="capsule" fromto="0.23344287 -0.25000000 0.82028918 0.22508145 -0.25000000 0.82082225" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0093" type="capsule" fromto="0.22508145 -0.25000000 0.82082225 0.21672064 -0.25000000 0.82119982" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0094" type="capsule" fromto="0.21672064 -0.25000000 0.82119982 0.20836022 -0.25000000 0.82142511" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0095" type="capsule" fromto="0.20836022 -0.25000000 0.82142511 0.20000000 -0.25000000 0.82150000" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0096" type="capsule" fromto="0.20000000 -0.25000000 0.82150000 0.19163978 -0.25000000 0.82142511" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0097" type="capsule" fromto="0.19163978 -0.25000000 0.82142511 0.18327936 -0.25000000 0.82119982" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0098" type="capsule" fromto="0.18327936 -0.25000000 0.82119982 0.17491855 -0.25000000 0.82082225" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0099" type="capsule" fromto="0.17491855 -0.25000000 0.82082225 0.16655713 -0.25000000 0.82028918" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0100" type="capsule" fromto="0.16655713 -0.25000000 0.82028918 0.15819485 -0.25000000 0.81959589" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0101" type="capsule" fromto="0.15819485 -0.25000000 0.81959589 0.14983145 -0.25000000 0.81873598" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0102" type="capsule" fromto="0.14983145 -0.25000000 0.81873598 0.14146659 -0.25000000 0.81770099" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0103" type="capsule" fromto="0.14146659 -0.25000000 0.81770099 0.13309988 -0.25000000 0.81647999" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0104" type="capsule" fromto="0.13309988 -0.25000000 0.81647999 0.12473082 -0.25000000 0.81505885" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0105" type="capsule" fromto="0.12473082 -0.25000000 0.81505885 0.11635877 -0.25000000 0.81341927" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0106" type="capsule" fromto="0.11635877 -0.25000000 0.81341927 0.10798288 -0.25000000 0.81153724" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0107" type="capsule" fromto="0.10798288 -0.25000000 0.81153724 0.09960197 -0.25000000 0.80938059" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0108" type="capsule" fromto="0.09960197 -0.25000000 0.80938059 0.09960155 -0.24496458 0.80931884" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0109" type="capsule" fromto="0.09960155 -0.24496458 0.80931884 0.09960029 -0.23992894 0.80913304" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0110" type="capsule" fromto="0.09960029 -0.23992894 0.80913304 0.09959817 -0.23489284 0.80882154" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0111" type="capsule" fromto="0.09959817 -0.23489284 0.80882154 0.09959514 -0.22985605 0.80838152" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0112" type="capsule" fromto="0.09959514 -0.22985605 0.80838152 0.10797734 -0.22986192 0.81058749" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0113" type="capsule" fromto="0.10797734 -0.22986192 0.81058749 0.11635423 -0.22986670 0.81250871" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0114" type="capsule" fromto="0.11635423 -0.22986670 0.81250871 0.12472708 -0.22987062 0.81417986" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0115" type="capsule" fromto="0.12472708 -0.22987062 0.81417986 0.13309679 -0.22987384 0.81562662" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0116" type="capsule" fromto="0.13309679 -0.22987384 0.81562662 0.14146405 -0.22987650 0.81686847" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0117" type="capsule" fromto="0.14146405 -0.22987650 0.81686847 0.14982939 -0.22987867 0.81792035" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0118" type="capsule" fromto="0.14982939 -0.22987867 0.81792035 0.15819321 -0.22988043 0.81879377" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0119" type="capsule" fromto="0.15819321 -0.22988043 0.81879377 0.16655586 -0.22988180 0.81949763" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0120" type="capsule" fromto="0.16655586 -0.22988180 0.81949763 0.17491762 -0.22988284 0.82003864" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0121" type="capsule" fromto="0.17491762 -0.22988284 0.82003864 0.18327876 -0.22988357 0.82042173" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0122" type="capsule" fromto="0.18327876 -0.22988357 0.82042173 0.19163948 -0.22988400 0.82065028" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0123" type="capsule" fromto="0.19163948 -0.22988400 0.82065028 0.20000000 -0.22988414 0.82072625" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0124" type="capsule" fromto="0.20000000 -0.22988414 0.82072625 0.20836052 -0.22988400 0.82065028" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0125" type="capsule" fromto="0.20836052 -0.22988400 0.82065028 0.21672124 -0.22988357 0.82042173" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0126" type="capsule" fromto="0.21672124 -0.22988357 0.82042173 0.22508238 -0.22988284 0.82003864" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0127" type="capsule" fromto="0.22508238 -0.22988284 0.82003864 0.23344414 -0.22988180 0.81949763" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0128" type="capsule" fromto="0.23344414 -0.22988180 0.81949763 0.24180679 -0.22988043 0.81879377" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0129" type="capsule" fromto="0.24180679 -0.22988043 0.81879377 0.25017061 -0.22987867 0.81792035" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0130" type="capsule" fromto="0.25017061 -0.22987867 0.81792035 0.25853595 -0.22987650 0.81686847" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0131" type="capsule" fromto="0.25853595 -0.22987650 0.81686847 0.26690321 -0.22987384 0.81562662" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0132" type="capsule" fromto="0.26690321 -0.22987384 0.81562662 0.27527292 -0.22987062 0.81417986" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0133" type="capsule" fromto="0.27527292 -0.22987062 0.81417986 0.28364577 -0.22986670 0.81250871" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0134" type="capsule" fromto="0.28364577 -0.22986670 0.81250871 0.29202266 -0.22986192 0.81058749" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0135" type="capsule" fromto="0.29202266 -0.22986192 0.81058749 0.30040486 -0.22985605 0.80838152" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0136" type="capsule" fromto="0.30040486 -0.22985605 0.80838152 0.30040887 -0.22481828 0.80780883" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0137" type="capsule" fromto="0.30040887 -0.22481828 0.80780883 0.30041392 -0.21977924 0.80709781" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0138" type="capsule" fromto="0.30041392 -0.21977924 0.80709781 0.30042015 -0.21473857 0.80624095" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0139" type="capsule" fromto="0.30042015 -0.21473857 0.80624095 0.30042769 -0.20969586 0.80522849" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0140" type="capsule" fromto="0.30042769 -0.20969586 0.80522849 0.29204100 -0.20970961 0.80760553" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0141" type="capsule" fromto="0.29204100 -0.20970961 0.80760553 0.28366069 -0.20972066 0.80966084" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0142" type="capsule" fromto="0.28366069 -0.20972066 0.80966084 0.27528515 -0.20972964 0.81143891" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0143" type="capsule" fromto="0.27528515 -0.20972964 0.81143891 0.26691325 -0.20973698 0.81297178" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0144" type="capsule" fromto="0.26691325 -0.20973698 0.81297178 0.25854417 -0.20974298 0.81428323" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0145" type="capsule" fromto="0.25854417 -0.20974298 0.81428323 0.25017728 -0.20974787 0.81539118" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0146" type="capsule" fromto="0.25017728 -0.20974787 0.81539118 0.24181210 -0.20975179 0.81630932" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0147" type="capsule" fromto="0.24181210 -0.20975179 0.81630932 0.23344824 -0.20975486 0.81704804" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0148" type="capsule" fromto="0.23344824 -0.20975486 0.81704804 0.22508537 -0.20975718 0.81761518" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0149" type="capsule" fromto="0.22508537 -0.20975718 0.81761518 0.21672320 -0.20975879 0.81801643" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0150" type="capsule" fromto="0.21672320 -0.20975879 0.81801643 0.20836149 -0.20975975 0.81825568" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0151" type="capsule" fromto="0.20836149 -0.20975975 0.81825568 0.20000000 -0.20976006 0.81833518" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0152" type="capsule" fromto="0.20000000 -0.20976006 0.81833518 0.19163851 -0.20975975 0.81825568" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0153" type="capsule" fromto="0.19163851 -0.20975975 0.81825568 0.18327680 -0.20975879 0.81801643" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0154" type="capsule" fromto="0.18327680 -0.20975879 0.81801643 0.17491463 -0.20975718 0.81761518" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0155" type="capsule" fromto="0.17491463 -0.20975718 0.81761518 0.16655176 -0.20975486 0.81704804" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0156" type="capsule" fromto="0.16655176 -0.20975486 0.81704804 0.15818790 -0.20975179 0.81630932" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0157" type="capsule" fromto="0.15818790 -0.20975179 0.81630932 0.14982272 -0.20974787 0.81539118" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0158" type="capsule" fromto="0.14982272 -0.20974787 0.81539118 0.14145583 -0.20974298 0.81428323" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0159" type="capsule" fromto="0.14145583 -0.20974298 0.81428323 0.13308675 -0.20973698 0.81297178" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0160" type="capsule" fromto="0.13308675 -0.20973698 0.81297178 0.12471485 -0.20972964 0.81143891" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0161" type="capsule" fromto="0.12471485 -0.20972964 0.81143891 0.11633931 -0.20972066 0.80966084" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0162" type="capsule" fromto="0.11633931 -0.20972066 0.80966084 0.10795900 -0.20970961 0.80760553" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0163" type="capsule" fromto="0.10795900 -0.20970961 0.80760553 0.09957231 -0.20969586 0.80522849" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0164" type="capsule" fromto="0.09957231 -0.20969586 0.80522849 0.09956325 -0.20465060 0.80404775" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0165" type="capsule" fromto="0.09956325 -0.20465060 0.80404775 0.09955241 -0.19960214 0.80268210" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0166" type="capsule" fromto="0.09955241 -0.19960214 0.80268210 0.09953943 -0.19454966 0.80110949" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0167" type="capsule" fromto="0.09953943 -0.19454966 0.80110949 0.09952384 -0.18949209 0.79929999" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0168" type="capsule" fromto="0.09952384 -0.18949209 0.79929999 0.10792092 -0.18952010 0.80207895" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0169" type="capsule" fromto="0.10792092 -0.18952010 0.80207895 0.11630885 -0.18954199 0.80443760" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0170" type="capsule" fromto="0.11630885 -0.18954199 0.80443760 0.12469022 -0.18955942 0.80645091" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0171" type="capsule" fromto="0.12469022 -0.18955942 0.80645091 0.13306673 -0.18957344 0.80816930" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0172" type="capsule" fromto="0.13306673 -0.18957344 0.80816930 0.14143958 -0.18958476 0.80962829" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0173" type="capsule" fromto="0.14143958 -0.18958476 0.80962829 0.14980963 -0.18959387 0.81085366" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0174" type="capsule" fromto="0.14980963 -0.18959387 0.81085366 0.15817752 -0.18960113 0.81186449" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0175" type="capsule" fromto="0.15817752 -0.18960113 0.81186449 0.16654379 -0.18960679 0.81267495" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0176" type="capsule" fromto="0.16654379 -0.18960679 0.81267495 0.17490883 -0.18961103 0.81329555" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0177" type="capsule" fromto="0.17490883 -0.18961103 0.81329555 0.18327302 -0.18961397 0.81373381" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0178" type="capsule" fromto="0.18327302 -0.18961397 0.81373381 0.19163664 -0.18961571 0.81399481" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0179" type="capsule" fromto="0.19163664 -0.18961571 0.81399481 0.20000000 -0.18961628 0.81408149" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0180" type="capsule" fromto="0.20000000 -0.18961628 0.81408149 0.20836336 -0.18961571 0.81399481" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0181" type="capsule" fromto="0.20836336 -0.18961571 0.81399481 0.21672698 -0.18961397 0.81373381" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0182" type="capsule" fromto="0.21672698 -0.18961397 0.81373381 0.22509117 -0.18961103 0.81329555" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0183" type="capsule" fromto="0.22509117 -0.18961103 0.81329555 0.23345621 -0.18960679 0.81267495" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0184" type="capsule" fromto="0.23345621 -0.18960679 0.81267495 0.24182248 -0.18960113 0.81186449" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0185" type="capsule" fromto="0.24182248 -0.18960113 0.81186449 0.25019037 -0.18959387 0.81085366" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0186" type="capsule" fromto="0.25019037 -0.18959387 0.81085366 0.25856042 -0.18958476 0.80962829" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0187" type="capsule" fromto="0.25856042 -0.18958476 0.80962829 0.26693327 -0.18957344 0.80816930" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0188" type="capsule" fromto="0.26693327 -0.18957344 0.80816930 0.27530978 -0.18955942 0.80645091" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0189" type="capsule" fromto="0.27530978 -0.18955942 0.80645091 0.28369115 -0.18954199 0.80443760" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0190" type="capsule" fromto="0.28369115 -0.18954199 0.80443760 0.29207908 -0.18952010 0.80207895" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="scan_path_segment_0191" type="capsule" fromto="0.29207908 -0.18952010 0.80207895 0.30047616 -0.18949209 0.79929999" size="0.0012" rgba="0.05 0.85 0.25 0.95" contype="0" conaffinity="0" />
+      <geom name="surface_normal_000" type="capsule" fromto="0.09936511 -0.31067721 0.79974287 0.09142903 -0.31914237 0.82188693" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_001" type="capsule" fromto="0.16650283 -0.31052428 0.81315573 0.16445485 -0.31707782 0.83719438" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_002" type="capsule" fromto="0.23349717 -0.31052428 0.81315573 0.23554515 -0.31707782 0.83719438" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_003" type="capsule" fromto="0.30063489 -0.31067721 0.79974287 0.30857097 -0.31914237 0.82188693" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_004" type="capsule" fromto="0.26699544 -0.29035070 0.81345712 0.27110517 -0.29473440 0.83772425" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_005" type="capsule" fromto="0.20000000 -0.29031992 0.81882874 0.20000000 -0.29431889 0.84350684" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_006" type="capsule" fromto="0.13300456 -0.29035070 0.81345712 0.12889483 -0.29473440 0.83772425" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_007" type="capsule" fromto="0.09946018 -0.27019194 0.80886057 0.09271244 -0.27259113 0.83281285" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_008" type="capsule" fromto="0.16651892 -0.27015760 0.81999470 0.16467209 -0.27212755 0.84484844" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_009" type="capsule" fromto="0.23348108 -0.27015760 0.81999470 0.23532791 -0.27212755 0.84484844" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_010" type="capsule" fromto="0.30053982 -0.27019194 0.80886057 0.30728756 -0.27259113 0.83281285" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_011" type="capsule" fromto="0.26697794 -0.25000000 0.81697389 0.27086888 -0.25000000 0.84166925" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_012" type="capsule" fromto="0.20000000 -0.25000000 0.82200000 0.20000000 -0.25000000 0.84700000" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_013" type="capsule" fromto="0.13302206 -0.25000000 0.81697389 0.12913112 -0.25000000 0.84166925" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_014" type="capsule" fromto="0.09946018 -0.22980806 0.80886057 0.09271244 -0.22740887 0.83281285" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_015" type="capsule" fromto="0.16651892 -0.22984240 0.81999470 0.16467209 -0.22787245 0.84484844" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_016" type="capsule" fromto="0.23348108 -0.22984240 0.81999470 0.23532791 -0.22787245 0.84484844" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_017" type="capsule" fromto="0.30053982 -0.22980806 0.80886057 0.30728756 -0.22740887 0.83281285" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_018" type="capsule" fromto="0.26699544 -0.20964930 0.81345712 0.27110517 -0.20526560 0.83772425" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_019" type="capsule" fromto="0.20000000 -0.20968008 0.81882874 0.20000000 -0.20568111 0.84350684" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_020" type="capsule" fromto="0.13300456 -0.20964930 0.81345712 0.12889483 -0.20526560 0.83772425" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_021" type="capsule" fromto="0.09936511 -0.18932279 0.79974287 0.09142903 -0.18085763 0.82188693" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_022" type="capsule" fromto="0.16650283 -0.18947572 0.81315573 0.16445485 -0.18292218 0.83719438" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_023" type="capsule" fromto="0.23349717 -0.18947572 0.81315573 0.23554515 -0.18292218 0.83719438" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <geom name="surface_normal_024" type="capsule" fromto="0.30063489 -0.18932279 0.79974287 0.30857097 -0.18085763 0.82188693" size="0.0010" rgba="0.10 0.35 1.00 0.90" contype="0" conaffinity="0" />
+      <site name="scan_start" type="sphere" pos="0.10000000 -0.31000000 0.79797134" size="0.005" rgba="0.05 1.0 0.05 1" />
+      <site name="scan_end" type="sphere" pos="0.30000000 -0.19000000 0.79797134" size="0.005" rgba="1.0 0.10 0.10 1" />
+    </body>
+  </worldbody>
+  <visual>
+    <headlight ambient="0.45 0.45 0.45" diffuse="0.75 0.75 0.75" />
+    <rgba haze="0.75 0.82 0.90 1" />
+  </visual>
+  <contact>
+    <exclude body1="base_link_inertia" body2="shoulder_link" />
+  </contact>
+  <actuator>
+    <motor name="shoulder_pan_motor" joint="shoulder_pan_joint" gear="1" ctrllimited="true" ctrlrange="-56 56" />
+    <motor name="shoulder_lift_motor" joint="shoulder_lift_joint" gear="1" ctrllimited="true" ctrlrange="-56 56" />
+    <motor name="elbow_motor" joint="elbow_joint" gear="1" ctrllimited="true" ctrlrange="-28 28" />
+    <motor name="wrist1_motor" joint="wrist_1_joint" gear="1" ctrllimited="true" ctrlrange="-12 12" />
+    <motor name="wrist2_motor" joint="wrist_2_joint" gear="1" ctrllimited="true" ctrlrange="-12 12" />
+    <motor name="wrist3_motor" joint="wrist_3_joint" gear="1" ctrllimited="true" ctrlrange="-12 12" />
+  </actuator>
+  <sensor>
+    <force name="ft300_force" site="ft300_site" />
+    <torque name="ft300_torque" site="ft300_site" />
+  </sensor>
+  <keyframe>
+    <key name="home" qpos="-1.254 -1.5707 1.5707 -1.5707 -1.5707 0" ctrl="0 0 0 0 0 0" />
+  </keyframe>
+</mujoco>
