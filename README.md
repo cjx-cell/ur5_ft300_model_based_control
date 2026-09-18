@@ -1,4 +1,4 @@
-# UR5/UR3 + FT300 基于模型的曲面扫描与力控制
+# UR5 + FT300 基于模型的学习曲面扫描与力控制
 
 本项目使用 **MuJoCo + Pinocchio** 实现机械臂动力学控制、FT300 六维力传感处理、未知曲面学习、5 N 恒力扫描和鲁棒性验证。
 
@@ -11,7 +11,7 @@
 ## 项目结构
 
 ```text
-ur3_ft300_model_based_control/
+ur5_ft300_model_based_control/
 ├── README.md
 ├── environment.yml
 ├── docs/
@@ -137,8 +137,8 @@ experiments/ur5_surface_scanning/results/robustness/
 ## 快速运行
 
 ```bash
-cd ~/ur3_ft300_model_based_control/experiments/ur5_surface_scanning
-conda activate robot310
+cd ~/ur5_ft300_model_based_control/experiments/ur5_surface_scanning
+conda activate ur5-control
 
 # 学习曲面全路径可达性
 env -u PYTHONPATH python 97C_check_learned_surface_reachability.py

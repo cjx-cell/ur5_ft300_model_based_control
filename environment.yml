@@ -1,4 +1,4 @@
-name: ur3-control
+name: ur5-control
 channels:
   - conda-forge
 

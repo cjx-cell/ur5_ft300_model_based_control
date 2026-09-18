@@ -41,8 +41,8 @@
 ## 运行示例
 
 ```bash
-cd ~/ur3_ft300_model_based_control/experiments/archive/ur3_ft300_learning
-conda activate robot310
+cd ~/ur5_ft300_model_based_control/experiments/archive/ur3_ft300_learning
+conda activate ur5-control
 
 env -u PYTHONPATH python 74_ur3_contact_path_learning.py
 env -u PYTHONPATH python 74_ur3_force_controlled_replay.py

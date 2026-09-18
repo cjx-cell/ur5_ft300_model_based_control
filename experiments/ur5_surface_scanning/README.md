@@ -42,8 +42,8 @@ M_{TCP}=M_{FT300}-r_{FT300\rightarrow TCP}\times F.
 ## 推荐运行顺序
 
 ```bash
-cd ~/ur3_ft300_model_based_control/experiments/ur5_surface_scanning
-conda activate robot310
+cd ~/ur5_ft300_model_based_control/experiments/ur5_surface_scanning
+conda activate ur5-control
 
 env -u PYTHONPATH python 97A_ur5_unknown_surface_exploration.py
 env -u PYTHONPATH python 97B_reconstruct_unknown_surface.py
