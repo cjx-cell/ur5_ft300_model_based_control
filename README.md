@@ -21,7 +21,7 @@ ur5_ft300_model_based_control/
 ├── examples/                         # 几何、运动学、动力学基础示例
 └── experiments/
     ├── ur5_surface_scanning/         # 当前UR5曲面扫描主线
-    │   ├── 89_* ... 98_*
+    │   ├── 89_* ... 107_*
     │   ├── ur5_ft300_inspection*
     │   └── results/robustness/
     └── archive/
@@ -151,6 +151,24 @@ env -u PYTHONPATH python 97E_ur5_learned_surface_robustness.py
 
 # 从97D结果重新生成README媒体
 MUJOCO_GL=egl env -u PYTHONPATH python 98_generate_ur5_scan_demo.py
+
+# TSID模型一致性和MuJoCo姿态闭环
+env -u PYTHONPATH python 100_validate_ur5_tsid_model.py
+env -u PYTHONPATH python 101_ur5_tsid_mujoco_posture.py
+
+# TSID笛卡尔多任务与HQP硬约束
+env -u PYTHONPATH python 102_ur5_tsid_mujoco_se3_hierarchy.py
+env -u PYTHONPATH python 103_ur5_tsid_hqp_safety_bounds.py
+
+# TSID/HQP + FT300 5 N接触状态机
+env -u PYTHONPATH python 104_ur5_tsid_ft300_5n_contact.py
+
+# TSID/HQP学习曲面完整扫描和基准对比
+env -u PYTHONPATH python 105_ur5_tsid_learned_surface_5n_scan.py
+env -u PYTHONPATH python 106_compare_97d_vs_tsid_hqp.py
+
+# TSID/HQP七场景鲁棒性验证
+env -u PYTHONPATH python 107_ur5_tsid_learned_surface_robustness.py
 ```
 
 关闭 MuJoCo Viewer 即可退出交互式扫描程序。97E 使用无界面仿真，并自动在完成后退出。
@@ -179,6 +197,14 @@ UR3 归档目录还保留：
 - 曲面混合位置/力控制
 - TSID/HQP 姿态、SE(3)、约束和接触力实验
 
+当前 UR5 主线已新增 TSID/HQP 实机式仿真闭环：`100` 验证模型一致性，
+`101` 使用 TSID 力矩直接驱动 MuJoCo，`102` 验证五维笛卡尔主任务与姿态
+正则化，`103` 将关节及力矩边界作为 HQP 硬约束，`104` 完成 FT300
+接触检测、5 N恒力保持和自动撤离，`105` 完成1.538 m学习曲面全路径
+TSID/HQP扫描，`106` 自动生成与97D传统计算力矩控制器的定量对比报告。
+`107`进一步完成工件偏移、倾斜及摩擦变化的7场景完整路径鲁棒性对比，
+结果为6/7通过；高摩擦场景被如实保留为当前控制边界。
+
 ## 环境
 
 当前完整 UR5 流程已在以下环境验证：
@@ -187,6 +213,7 @@ UR3 归档目录还保留：
 - Python 3.10
 - MuJoCo 3.13.0
 - Pinocchio 4.0.0
+- TSID 1.10.0
 - NumPy
 
 可使用仓库中的 `environment.yml` 创建环境；如果终端已加载 ROS 2 的 Python 路径，运行独立 MuJoCo/Pinocchio 程序时使用 `env -u PYTHONPATH`。
