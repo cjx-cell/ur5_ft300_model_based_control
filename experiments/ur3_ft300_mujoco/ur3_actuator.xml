@@ -1,0 +1,14 @@
+<mujoco model="ur3">
+
+    <option
+        timestep="0.001"
+        gravity="0 0 -9.81"
+    />
+
+
+    <worldbody>
+
+    </worldbody>
+
+
+</mujoco>

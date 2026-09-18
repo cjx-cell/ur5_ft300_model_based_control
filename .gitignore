@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Conda
+.conda/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime logs / crashes
+*.log
+core
+core.*
+*.stackdump
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Local experiment output
+artifacts/
+outputs/
+runs/
+
+# Jupyter
+.ipynb_checkpoints/

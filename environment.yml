@@ -1,0 +1,14 @@
+name: ur3-control
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.10
+  - pinocchio=4.0.0
+  - tsid=1.10.0
+  - numpy
+  - typing_extensions
+  - fsspec
+  - pip
+  - pip:
+      - mujoco==3.13.0

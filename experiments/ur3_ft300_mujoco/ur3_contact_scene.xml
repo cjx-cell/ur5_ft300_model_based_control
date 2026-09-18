@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="ur3">
+  <compiler angle="radian" />
+
+  <asset>
+    <mesh name="base" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/base.stl" />
+    <mesh name="shoulder" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/shoulder.stl" />
+    <mesh name="upperarm" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/upperarm.stl" />
+    <mesh name="forearm" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/forearm.stl" />
+    <mesh name="wrist1" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist1.stl" />
+    <mesh name="wrist2" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist2.stl" />
+    <mesh name="wrist3" content_type="model/stl" file="/home/ubuntu/ur3_ft300_ws/src/ur_description/meshes/ur3/collision/wrist3.stl" />
+  </asset>
+
+  
+  <contact>
+    <exclude body1="world" body2="shoulder_link" />
+  </contact>
+
+  <worldbody>
+    <geom quat="-1 0 0 0" type="mesh" mesh="base" />
+    <body name="shoulder_link" pos="0 0 0.1519" quat="0 0 0 1">
+      <inertial pos="0 0 -0.02" mass="2" diaginertia="0.00809317 0.00809317 0.005625" />
+      <joint name="shoulder_pan_joint" limited="true" range="-6.28319 6.28319" actuatorfrcrange="-56 56" />
+      <geom quat="0 0 0 1" type="mesh" mesh="shoulder" />
+      <body name="upper_arm_link" quat="0.707107 0.707107 0 0">
+        <inertial pos="-0.11365 0 0.1157" mass="3.42" diaginertia="0.0217285 0.0217285 0.00961875" />
+        <joint name="shoulder_lift_joint" limited="true" range="-6.28319 6.28319" actuatorfrcrange="-56 56" />
+        <geom pos="0 0 0.1198" quat="0.5 0.5 -0.5 -0.5" type="mesh" mesh="upperarm" />
+        <body name="forearm_link" pos="-0.24365 0 0">
+          <inertial pos="-0.16325 0 0.0238" mass="1.26" diaginertia="0.00654681 0.00654681 0.00354375" />
+          <joint name="elbow_joint" limited="true" range="-3.14159 3.14159" actuatorfrcrange="-28 28" />
+          <geom pos="0 0 0.0275" quat="0.5 0.5 -0.5 -0.5" type="mesh" mesh="forearm" />
+          <body name="wrist_1_link" pos="-0.21325 0 0.11235">
+            <inertial pos="0 -0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00161064 0.00161064" />
+            <joint name="wrist_1_joint" limited="true" range="-6.28319 6.28319" actuatorfrcrange="-12 12" />
+            <geom pos="0 0 -0.085" quat="0.707107 0.707107 0 0" type="mesh" mesh="wrist1" />
+            <body name="wrist_2_link" pos="0 -0.08535 -1.75056e-11" quat="0.707107 0.707107 0 0">
+              <inertial pos="0 0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00157217 0.00157217" />
+              <joint name="wrist_2_joint" limited="true" range="-6.28319 6.28319" actuatorfrcrange="-12 12" />
+              <geom pos="0 0 -0.083" quat="1 0 0 0" type="mesh" mesh="wrist2" />
+              <body name="wrist_3_link" pos="0 0.0819 -1.6798e-11" quat="0.707107 -0.707107 0 0">
+                <inertial pos="0 0 -0.02" quat="0.5 0.5 -0.5 0.5" mass="0.35" diaginertia="0.0001792 0.000136267 0.000136267" />
+                <joint name="wrist_3_joint" limited="true" range="-6.28319 6.28319" actuatorfrcrange="-12 12" />
+                <geom pos="0 -0.002 -0.082" quat="0.707107 0.707107 0 0" type="mesh" mesh="wrist3" />
+              <geom name="tcp_probe" type="sphere" pos="2.7601846349223835e-12 -4.679934217932666e-11 2.7602955484787293e-12" size="0.015" mass="0" contype="2" conaffinity="4" condim="3" friction="0.8 0.005 0.0001" rgba="0.9 0.2 0.2 1" /></body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  <geom name="contact_wall" type="box" pos="0.2904633246167368 0.32965973795499237 0.17093208960207715" size="0.010 0.060 0.060" contype="4" conaffinity="2" condim="3" friction="0.8 0.005 0.0001" rgba="0.2 0.4 0.9 0.7" /></worldbody>
+  <actuator>
+
+    <motor name="shoulder_pan_motor" joint="shoulder_pan_joint" gear="1" />
+
+    <motor name="shoulder_lift_motor" joint="shoulder_lift_joint" gear="1" />
+
+
+    <motor name="elbow_motor" joint="elbow_joint" gear="1" />
+
+
+    <motor name="wrist1_motor" joint="wrist_1_joint" gear="1" />
+
+
+    <motor name="wrist2_motor" joint="wrist_2_joint" gear="1" />
+
+
+    <motor name="wrist3_motor" joint="wrist_3_joint" gear="1" />
+
+</actuator>
+</mujoco>
