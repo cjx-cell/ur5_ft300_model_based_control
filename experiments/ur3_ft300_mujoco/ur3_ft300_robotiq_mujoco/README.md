@@ -12,23 +12,26 @@
 
 ## 直接查看最终模型
 
-在 `~/ur3_ft300_model_based_control` 目录运行：
+在仓库根目录运行：
 
 ```bash
-.venv/bin/python 07_mujoco/ur3_ft300_robotiq_mujoco/view_model.py
+conda activate ur3-control
+
+python experiments/ur3_ft300_mujoco/ur3_ft300_robotiq_mujoco/view_model.py
 ```
 
 也可以直接在自己的 Python 程序中加载：
 
 ```python
 from pathlib import Path
-
 import mujoco
 
 model_path = Path(
-    "~/ur3_ft300_model_based_control/07_mujoco/"
-    "ur3_ft300_robotiq_mujoco/ur3_ft300_robotiq.xml"
-)
+    "experiments/ur3_ft300_mujoco/"
+    "ur3_ft300_robotiq_mujoco/"
+    "ur3_ft300_robotiq.xml"
+).resolve()
+
 model = mujoco.MjModel.from_xml_path(str(model_path))
 data = mujoco.MjData(model)
 ```
@@ -133,11 +136,12 @@ global_camera_id = mujoco.mj_name2id(
 
 ## 重新生成模型
 
-原始 Xacro 或网格更新后运行：
+原始 Xacro 或网格更新后，在仓库根目录运行：
 
 ```bash
-cd ~/ur3_ft300_model_based_control
-.venv/bin/python 07_mujoco/ur3_ft300_robotiq_mujoco/convert_model.py
+conda activate ur3-control
+
+python experiments/ur3_ft300_mujoco/ur3_ft300_robotiq_mujoco/convert_model.py
 ```
 
 转换脚本会重新生成：
