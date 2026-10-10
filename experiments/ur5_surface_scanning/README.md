@@ -19,6 +19,12 @@
   ↓
 97E 工件偏移、倾斜和摩擦鲁棒性验证
   ↓
+97F 固定速度/导纳参数消融与筛选
+  ↓
+97G 力/摩擦感知自适应路径速度，七场景复验
+  ↓
+97H 97E与97G精度—吞吐率对比图
+  ↓
 100–107 TSID模型一致性、HQP约束、FT300力控、全路径扫描与鲁棒性对比
 ```
 
@@ -135,6 +141,34 @@ HQP并取消求解后力矩裁剪。报告见 `106_tsid_vs_97d_comparison.md`。
 env -u PYTHONPATH python 97E_ur5_learned_surface_robustness.py
 ```
 
+97F先在名义与高摩擦两个训练场景中比较六组固定参数。结果表明，仅降低固定
+扫描速度可将高摩擦最大力误差从 `7.075 N` 降至约 `4.95 N`，仍无法满足
+`3 N` 门槛；盲目提高导纳响应还会使名义工况退化：
+
+```bash
+env -u PYTHONPATH python 97F_tune_force_controller.py
+```
+
+97G在不使用解析曲面的前提下，根据法向过载和切向接触力缩放路径时间；同时
+把法向导纳从 `M=2.0, D=120` 调整为 `M=1.0, D=80`，提高短时失压恢复能力。
+完整七场景验证命令：
+
+```bash
+env -u PYTHONPATH python 97G_ur5_adaptive_speed_robustness.py
+```
+
+最终结果为 `7/7 PASS`。高摩擦工况的平均/最大力误差由
+`0.529/7.076 N` 降至 `0.010/0.546 N`，TCP最大误差为 `1.280 mm`，
+无力矩饱和；代价是该工况扫描时间从 `40.286 s` 增加到 `87.260 s`。
+名义工况扫描时间为 `55.359 s`，平均/最大力误差为 `0.219/2.762 N`。
+
+生成97E与97G的误差和精度—吞吐率对比图：
+
+```bash
+# robot310未安装matplotlib时，可使用base环境执行；该脚本不依赖MuJoCo
+MPLBACKEND=Agg ~/miniconda3/bin/python 97H_plot_adaptive_force_comparison.py
+```
+
 运行TSID/HQP控制器的相同场景：
 
 ```bash
@@ -156,6 +190,9 @@ env -u PYTHONPATH python 97E_ur5_learned_surface_robustness.py \
 ```text
 results/robustness/97E_robustness_summary.csv
 results/robustness/97E_robustness_summary.npz
+results/controller_tuning/97F_tuning_report.md
+results/adaptive_robustness/97G_adaptive_robustness_report.md
+results/adaptive_robustness/97H_97E_vs_97G_comparison.md
 results/tsid_robustness/107_tsid_robustness_summary.csv
 results/tsid_robustness/107_tsid_robustness_summary.npz
 results/tsid_robustness/107_tsid_vs_97d_robustness.md
@@ -183,7 +220,9 @@ MUJOCO_GL=egl env -u PYTHONPATH python 98_generate_ur5_scan_demo.py
 | 基准控制 | `94_*`、`95_*`、`96_*` |
 | 未知曲面学习 | `97A_*`、`97B_*`、`97C_*` |
 | 恒力扫描 | `97D_*` |
-| 鲁棒性 | `97E_*`、`results/robustness/` |
+| 参数筛选 | `97F_*`、`results/controller_tuning/` |
+| 自适应鲁棒控制 | `97G_*`、`97H_*`、`results/adaptive_robustness/` |
+| 固定速度鲁棒性基线 | `97E_*`、`results/robustness/` |
 | 媒体生成 | `98_*` |
 | TSID/HQP | `100_*` 至 `107_*`、`ur5_tsid_mujoco_common.py` |
 

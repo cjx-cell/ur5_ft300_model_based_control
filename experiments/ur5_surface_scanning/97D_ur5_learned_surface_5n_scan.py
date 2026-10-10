@@ -93,6 +93,18 @@ SCAN_AVG_SPEED = 0.040
 CONNECTOR_AVG_SPEED = 0.025
 MIN_SEGMENT_DURATION = 0.40
 
+# Optional force-aware path time scaling. It is disabled in 97D so the
+# published baseline remains directly comparable. 97G enables it and slows
+# path progress before friction-induced normal-force peaks grow unsafe.
+ADAPTIVE_PATH_SPEED = False
+ADAPTIVE_MIN_SPEED_SCALE = 0.20
+ADAPTIVE_FORCE_SOFT_ERROR = 0.50
+ADAPTIVE_FORCE_HARD_ERROR = 2.00
+ADAPTIVE_TANGENTIAL_SOFT_FORCE = 1.70
+ADAPTIVE_TANGENTIAL_HARD_FORCE = 3.10
+ADAPTIVE_BRAKE_RATE = 3.0
+ADAPTIVE_RECOVERY_RATE = 0.50
+
 # ---------------------------------------------------------------------------
 # Cartesian model-based controller
 # ---------------------------------------------------------------------------
@@ -1678,6 +1690,9 @@ def main():
 
     segment_index = 0
     segment_elapsed = 0.0
+    adaptive_path_time = 0.0
+    adaptive_speed_scale = 1.0
+    adaptive_speed_scale_rate = 0.0
 
     force_errors_scan = []
     tcp_errors_scan = []
@@ -1704,6 +1719,7 @@ def main():
     measured_tilt_moment_scan = []
     tilt_correction_scan = []
     tilt_velocity_scan = []
+    speed_scale_scan = []
 
     max_torque = 0.0
     saturation_steps = 0
@@ -2133,6 +2149,7 @@ def main():
             )
 
             progress_percent = 0.0
+            path_reference_active = False
 
             if t < BIAS_END:
                 phase_text = (
@@ -2248,6 +2265,9 @@ def main():
 
                         segment_index = 0
                         segment_elapsed = 0.0
+                        adaptive_path_time = 0.0
+                        adaptive_speed_scale = 1.0
+                        adaptive_speed_scale_rate = 0.0
 
                         print(
                             f"Scan started 扫描开始: "
@@ -2255,8 +2275,9 @@ def main():
                         )
 
                     scan_elapsed = (
-                        t
-                        - scan_start_time
+                        adaptive_path_time
+                        if ADAPTIVE_PATH_SPEED
+                        else t - scan_start_time
                     )
 
                     while (
@@ -2310,6 +2331,22 @@ def main():
                             segment,
                             local_time,
                         )
+
+                        path_reference_active = True
+
+                        if ADAPTIVE_PATH_SPEED:
+                            nominal_sdot = sdot
+                            nominal_sddot = sddot
+                            sdot = (
+                                nominal_sdot
+                                * adaptive_speed_scale
+                            )
+                            sddot = (
+                                nominal_sddot
+                                * adaptive_speed_scale**2
+                                + nominal_sdot
+                                * adaptive_speed_scale_rate
+                            )
 
                         nominal_velocity = (
                             p_s
@@ -2407,6 +2444,96 @@ def main():
                     0.0,
                     force_sign
                     * projected_force,
+                )
+
+            # 97G uses the current wrench to update the path-clock rate for
+            # the next control step. Fast braking and deliberately slow
+            # recovery suppress a friction-induced peak without permanently
+            # sacrificing nominal throughput.
+            if (
+                ADAPTIVE_PATH_SPEED
+                and path_reference_active
+            ):
+                # Only overload is allowed to command braking.  Treating an
+                # under-force transient as a reason to slow down creates a
+                # positive feedback loop that can briefly unload the probe.
+                adaptive_force_error = max(
+                    0.0,
+                    measured_normal_force
+                    - DESIRED_FORCE,
+                )
+                adaptive_tangential_force = float(
+                    np.linalg.norm(
+                        external_world_wrench[:3]
+                        - projected_force
+                        * current_normal
+                    )
+                )
+
+                force_severity = float(
+                    np.clip(
+                        (
+                            adaptive_force_error
+                            - ADAPTIVE_FORCE_SOFT_ERROR
+                        )
+                        / (
+                            ADAPTIVE_FORCE_HARD_ERROR
+                            - ADAPTIVE_FORCE_SOFT_ERROR
+                        ),
+                        0.0,
+                        1.0,
+                    )
+                )
+                tangential_severity = float(
+                    np.clip(
+                        (
+                            adaptive_tangential_force
+                            - ADAPTIVE_TANGENTIAL_SOFT_FORCE
+                        )
+                        / (
+                            ADAPTIVE_TANGENTIAL_HARD_FORCE
+                            - ADAPTIVE_TANGENTIAL_SOFT_FORCE
+                        ),
+                        0.0,
+                        1.0,
+                    )
+                )
+                severity = max(
+                    force_severity,
+                    tangential_severity,
+                )
+                target_speed_scale = (
+                    1.0
+                    - (
+                        1.0
+                        - ADAPTIVE_MIN_SPEED_SCALE
+                    )
+                    * severity
+                )
+                scale_error = (
+                    target_speed_scale
+                    - adaptive_speed_scale
+                )
+                scale_rate_limit = (
+                    ADAPTIVE_BRAKE_RATE
+                    if scale_error < 0.0
+                    else ADAPTIVE_RECOVERY_RATE
+                )
+                adaptive_speed_scale_rate = float(
+                    np.clip(
+                        scale_error / dt,
+                        -scale_rate_limit,
+                        +scale_rate_limit,
+                    )
+                )
+                adaptive_speed_scale = float(
+                    np.clip(
+                        adaptive_speed_scale
+                        + adaptive_speed_scale_rate
+                        * dt,
+                        ADAPTIVE_MIN_SPEED_SCALE,
+                        1.0,
+                    )
                 )
 
             # Contact detection occurs during approach.
@@ -2796,6 +2923,16 @@ def main():
                 mj_data,
             )
 
+            if (
+                ADAPTIVE_PATH_SPEED
+                and scan_start_time is not None
+                and scan_finish_time is None
+            ):
+                adaptive_path_time += (
+                    adaptive_speed_scale
+                    * dt
+                )
+
             bad_contacts = unexpected_contacts(
                 mj_model,
                 mj_data,
@@ -3000,6 +3137,12 @@ def main():
 
                 tilt_velocity_scan.append(
                     tilt_velocity.copy()
+                )
+
+                speed_scale_scan.append(
+                    adaptive_speed_scale
+                    if ADAPTIVE_PATH_SPEED
+                    else 1.0
                 )
 
             # ------------------------------------------------------------
@@ -3256,6 +3399,12 @@ def main():
                     ),
                     tilt_velocity=np.asarray(
                         tilt_velocity_scan
+                    ),
+                    adaptive_path_speed=np.asarray(
+                        ADAPTIVE_PATH_SPEED
+                    ),
+                    speed_scale=np.asarray(
+                        speed_scale_scan
                     ),
                     normal_correction=np.asarray(
                         normal_corrections_scan

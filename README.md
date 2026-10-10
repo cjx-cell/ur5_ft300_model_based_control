@@ -25,6 +25,8 @@ ur5_ft300_model_based_control/
     │   ├── ur5_ft300_inspection*
     │   └── results/
     │       ├── robustness/           # 97D基准鲁棒性结果
+    │       ├── controller_tuning/    # 97F固定参数消融
+    │       ├── adaptive_robustness/  # 97G/97H自适应控制与对比图
     │       └── tsid_robustness/      # TSID/HQP鲁棒性与对比报告
     └── archive/
         └── ur3_ft300_learning/       # 00–83、74/75及UR3历史模型
@@ -47,6 +49,10 @@ ur5_ft300_model_based_control/
 97D：仅使用97B学习曲面进行1.538 m、5 N扫描
           ↓
 97E：工件偏移、倾斜和摩擦鲁棒性验证
+          ↓
+97F：固定速度与导纳参数消融
+          ↓
+97G–97H：力/摩擦感知自适应速度及前后对比
           ↓
 100–104：模型一致性、TSID闭环、笛卡尔任务、HQP约束、FT300接触
           ↓
@@ -117,6 +123,25 @@ M_{TCP}=M_{FT300}-r_{FT300\rightarrow TCP}\times F.
 | 力矩饱和 | 0% |
 | 非预期碰撞 | 0 |
 | 结果 | PASS |
+
+### 97G 自适应速度鲁棒控制
+
+97F证明只调整固定扫描速度或单独提高导纳响应，无法让高摩擦工况满足最大
+力误差门槛。97G因此使用FT300法向过载与切向力在线缩放路径时间，并提高
+法向导纳带宽；控制器仍只使用97B学习曲面，不读取解析真实曲面。
+
+| 指标 | 97E固定速度 | 97G自适应速度 |
+|---|---:|---:|
+| 七场景通过数 | 6 / 7 | 7 / 7 |
+| 高摩擦平均力误差 | 0.529 N | 0.010 N |
+| 高摩擦最大力误差 | 7.076 N | 0.546 N |
+| 高摩擦TCP最大误差 | 1.476 mm | 1.280 mm |
+| 高摩擦扫描时间 | 40.286 s | 87.260 s |
+| 力矩饱和 | 0% | 0% |
+
+这是明确的精度—吞吐率权衡：普通工况保持较高速度，只有接触困难区域自动
+减速。完整报告与图表见
+[97H对比报告](experiments/ur5_surface_scanning/results/adaptive_robustness/97H_97E_vs_97G_comparison.md)。
 
 ## TSID/HQP 约束控制主线
 
@@ -221,6 +246,13 @@ env -u PYTHONPATH python 97D_ur5_learned_surface_5n_scan.py
 
 # 七个完整鲁棒性场景
 env -u PYTHONPATH python 97E_ur5_learned_surface_robustness.py
+
+# 固定参数消融、自适应速度七场景复验
+env -u PYTHONPATH python 97F_tune_force_controller.py
+env -u PYTHONPATH python 97G_ur5_adaptive_speed_robustness.py
+
+# 生成97E与97G对比图（不依赖MuJoCo）
+MPLBACKEND=Agg ~/miniconda3/bin/python 97H_plot_adaptive_force_comparison.py
 
 # 从97D结果重新生成README媒体
 MUJOCO_GL=egl env -u PYTHONPATH python 98_generate_ur5_scan_demo.py
